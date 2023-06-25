@@ -3,7 +3,9 @@ const usersRouters = require("./routes/users.router");
 const postsRouters = require("./routes/posts.router");
 const PORT = 4000;
 const app = express();
+const path = require("path");
 app.use(express.json());
+app.use("/static", express.static(path.join(__dirname, "public")));
 
 app.use((req, res, next) => {
   const start = Date.now();

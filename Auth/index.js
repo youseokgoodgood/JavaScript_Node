@@ -51,22 +51,23 @@ app.get("/", (req, res) => {
 });
 
 app.get("/refresh", (req, res) => {
+  console.log("111");
   const cookies = req.cookies;
   if (!cookies?.jwt) return res.sendStatus(403);
 
   const refreshtoken = cookies.jwt;
 
-  if (!refreshtoken.includes(refreshtoken)) {
+  if (!refreshtoken.includes(refreshtoken[0])) {
     return res.sendStatus(403);
   }
 
-  jwt.verify(refreshtoken, refreshSecretText, (err, user) => {
+  jwt.verify(refreshtoken[0], refreshSecretText, (err, user) => {
     if (err) return res.sendStatus(403);
 
     const accessToken = jwt.sign({ name: user.name }, secretText, {
       expiresIn: "30s",
     });
-    res.json({ accessToken });
+    res.json({ accessToken: accessToken });
   });
 
   console.log(`req.cookies`, req.cookies);

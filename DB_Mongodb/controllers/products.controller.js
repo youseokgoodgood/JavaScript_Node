@@ -1,5 +1,7 @@
 const productModel = require("../models/products.model");
 
+//비동기 경우 next()를 이용하여 에러 처리 해야함
+
 async function createProduct(req, res, next) {
   try {
     const createProduct = await productModel.create(req.body);

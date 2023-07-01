@@ -1,6 +1,7 @@
 const express = require("express");
 const usersRouters = require("./routes/users.router");
 const postsRouters = require("./routes/posts.router");
+const productsRouters = require("./routes/products.router");
 const PORT = 4000;
 const app = express();
 const path = require("path");
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
 
 app.use("/users", usersRouters);
 app.use("/posts", postsRouters);
+app.use("/products", productsRouters);
 
 app.listen(PORT, () => {
   console.log(`PORT ${PORT}`);

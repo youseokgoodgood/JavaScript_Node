@@ -47,6 +47,25 @@ const getAllPosts = () => {
   return posts;
 };
 
+const getPostById = (id) => {
+  return posts.find((post) => post.id === id);
+};
+
+const addNewPost = (id, title, description) => {
+  const newPost = {
+    id,
+    title,
+    description,
+    comments: [],
+  };
+
+  posts.push(newPost);
+
+  return newPost;
+};
+
 module.exports = {
   getAllPosts,
+  getPostById,
+  addNewPost,
 };

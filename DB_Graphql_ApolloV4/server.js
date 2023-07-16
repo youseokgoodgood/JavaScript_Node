@@ -1,6 +1,9 @@
 const { loadFilesSync } = require("@graphql-tools/load-files");
 const { makeExecutableSchema } = require("@graphql-tools/schema");
-const { ApolloServer } = require("apollo-server-express");
+const { ApolloServer } = require("@apollo/server");
+const cors = require("cors");
+const { json } = require("body-parser");
+const { expressMiddleware } = require("@apollo/server/express4");
 const express = require("express");
 const path = require("path");
 const loadedTypes = loadFilesSync("**/*", { extensions: ["graphql"] });
@@ -26,7 +29,14 @@ const startApolloServer = async () => {
   await apolloServer.start();
 
   //express 서버를 연결하고, 들어오는 request을 처리하는 graphql path
-  apolloServer.applyMiddleware({ app, path: "/graphql" });
+  app.use(
+    "/graphql",
+    cors(),
+    json(),
+    expressMiddleware(apolloServer, {
+      context: async ({ req }) => ({ token: req.headers.token }),
+    })
+  );
 
   app.use(express.json());
 

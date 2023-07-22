@@ -1,106 +1,46 @@
 const cookieParser = require("cookie-parser");
 const express = require("express");
+const path = require("path");
+const mongoose = require("mongoose");
 const app = express();
-const jwt = require("jsonwebtoken");
-const secretText = "tladbtjr123";
-const refreshSecretText = "torri123";
 const PORT = 4000;
-const posts = [
-  {
-    username: "John",
-    title: "Post 1",
-  },
-  {
-    username: "Han",
-    title: "Post 2",
-  },
-];
-
-let resfreshTokens = [];
-
-function authMiddleware(req, res, next) {
-  //토큰을 request header에서 가져오기
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-
-  if (token === null && token === undefined) {
-    return res.sendStatus(401);
-  } else {
-    //jwt 토큰이 유효한지 확인
-    jwt.verify(token, secretText, (err, user) => {
-      if (err) {
-        return res.sendStatus(403);
-      } else {
-        req.user = user;
-        next(); //다음 미들웨어로 넘어가기 위함
-      }
-    });
-  }
-}
 
 app.use(express.json());
+
+//form태그로 덮여져있는 input 태그 value 값을 서버측에서 받기 위해 아래코드 선언 필요
+app.use(express.urlencoded({ extended: false }));
+
+//view engine setup
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
+
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-  next();
-});
+app.use("/static", express.static(path.join(__dirname, "public")));
+
+mongoose
+  .connect(
+    "mongodb+srv://wnsghrnt2586:MMqxz0x1eRkYwwls@express-cluster.zasrnei.mongodb.net/?retryWrites=true&w=majority"
+  )
+  .then(() => console.log("MongoDB connect Success"))
+  .catch((err) => console.error(err));
 
 app.get("/", (req, res) => {
   console.log(`Auth Project`);
   res.status(201).send(`통신 성공`);
 });
 
-app.get("/refresh", (req, res) => {
-  console.log("111");
-  const cookies = req.cookies;
-  if (!cookies?.jwt) return res.sendStatus(403);
-
-  const refreshtoken = cookies.jwt;
-
-  if (!refreshtoken.includes(refreshtoken[0])) {
-    return res.sendStatus(403);
-  }
-
-  jwt.verify(refreshtoken[0], refreshSecretText, (err, user) => {
-    if (err) return res.sendStatus(403);
-
-    const accessToken = jwt.sign({ name: user.name }, secretText, {
-      expiresIn: "30s",
-    });
-    res.json({ accessToken: accessToken });
-  });
-
-  console.log(`req.cookies`, req.cookies);
+app.get("/login", (req, res, next) => {
+  res.render("login");
 });
 
-app.post("/login", (req, res) => {
-  const username = req.body.username;
-  const user = { name: username };
+app.post("login", (req, res, next) => {});
 
-  //jwt를 이용하여 토큰 생성 하기
-  // 유효기간 추가
-  const accessToken = jwt.sign(user, secretText, { expiresIn: "30s" });
-
-  //jwt를 이용해서 refreshtoken도 생성 refreshSecretText
-
-  const refreshAccessToken = jwt.sign(user, refreshSecretText, {
-    expiresIn: "1d",
-  }); //원래 db에 저장함
-
-  resfreshTokens.push(refreshAccessToken);
-
-  //resfreshTokens를 쿠키에 저장
-  res.cookie("jwt", resfreshTokens, {
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000,
-  });
-
-  res.json({ accessToken: accessToken });
+app.get("/signup", (req, res, next) => {
+  res.render("signup");
 });
 
-app.get("/posts", authMiddleware, (req, res) => {
-  res.json(posts);
-});
+app.post("/signup", (req, res, next) => {});
 
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);

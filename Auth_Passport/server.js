@@ -2,6 +2,8 @@ const cookieParser = require("cookie-parser");
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
+const User = require("./src/models/users.model");
+const passport = require("passport");
 const app = express();
 const PORT = 4000;
 
@@ -34,13 +36,26 @@ app.get("/login", (req, res, next) => {
   res.render("login");
 });
 
-app.post("login", (req, res, next) => {});
+app.post("/login", (req, res, next) => {
+  passport.Authenticator("local");
+});
 
 app.get("/signup", (req, res, next) => {
   res.render("signup");
 });
 
-app.post("/signup", (req, res, next) => {});
+app.post("/signup", async (req, res, next) => {
+  const user = new User(req.body);
+
+  try {
+    await user.save();
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);

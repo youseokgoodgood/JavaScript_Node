@@ -23,6 +23,7 @@ async function getProducts(req, res, next) {
 async function getProductById(req, res, next) {
   try {
     const Product = await productModel.findById(req.params.productId);
+
     if (Product) {
       res.status(200).json(Product);
     } else {

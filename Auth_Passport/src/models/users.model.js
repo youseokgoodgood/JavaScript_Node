@@ -3,7 +3,6 @@ const userSchema = mongoose.Schema({
   email: {
     //일반 로그인을 통한 로그인
     type: String,
-    trim: true,
     unique: true,
   },
   password: {
@@ -18,6 +17,18 @@ const userSchema = mongoose.Schema({
     sparse: true, // 세션저장
   },
 });
+
+userSchema.methods.comparePssword = (plainPassword, cb) => {
+  //bcrypt compare 비교 필요
+  //plain Password => client(사용자가 서버로 보낸 비밀번호), this.password => 데이터베이스에 있는 비밀번호
+  if (plainPassword === this.password) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+
+  return cb({ error: "error" });
+};
 
 const User = mongoose.model("User", userSchema);
 

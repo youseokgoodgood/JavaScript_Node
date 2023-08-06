@@ -4,8 +4,33 @@ const path = require("path");
 const mongoose = require("mongoose");
 const User = require("./src/models/users.model");
 const passport = require("passport");
+const cookieSession = require("cookie-session");
 const app = express();
 const PORT = 4000;
+const cookeEncryptionKey = ["key1", "key2"];
+
+app.use(
+  cookieSession({
+    keys: cookeEncryptionKey,
+  })
+);
+
+app.use(function (req, res, next) {
+  if (req.session && !req.session.regenerate) {
+    req.session.regenerate = (cb) => {
+      cb();
+    };
+  }
+  if (req.session && !req.session.save) {
+    req.session.save = (cb) => {};
+  }
+
+  next();
+});
+
+app.use(passport.initialize());
+app.use(passport.session());
+require("./src/config/passport");
 
 app.use(express.json());
 
@@ -20,6 +45,7 @@ app.use(cookieParser());
 
 app.use("/static", express.static(path.join(__dirname, "public")));
 
+mongoose.set("strictQuery", false);
 mongoose
   .connect(
     "mongodb+srv://wnsghrnt2586:MMqxz0x1eRkYwwls@express-cluster.zasrnei.mongodb.net/?retryWrites=true&w=majority"
@@ -29,7 +55,8 @@ mongoose
 
 app.get("/", (req, res) => {
   console.log(`Auth Project`);
-  res.status(201).send(`통신 성공`);
+  //res.status(201).send(`통신 성공`);
+  res.render("index");
 });
 
 app.get("/login", (req, res, next) => {
@@ -37,7 +64,22 @@ app.get("/login", (req, res, next) => {
 });
 
 app.post("/login", (req, res, next) => {
-  passport.Authenticator("local");
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+
+    if (!user) {
+      return res.json({ msg: info });
+    }
+
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      res.redirect("/");
+    });
+  })(req, res, next);
 });
 
 app.get("/signup", (req, res, next) => {

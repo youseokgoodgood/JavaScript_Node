@@ -1,13 +1,13 @@
-const cookieParser = require("cookie-parser");
-const express = require("express");
-const path = require("path");
-const mongoose = require("mongoose");
-const User = require("./src/models/users.model");
-const passport = require("passport");
-const cookieSession = require("cookie-session");
+const cookieParser = require('cookie-parser');
+const express = require('express');
+const path = require('path');
+const mongoose = require('mongoose');
+const User = require('./src/models/users.model');
+const passport = require('passport');
+const cookieSession = require('cookie-session');
 const app = express();
 const PORT = 4000;
-const cookeEncryptionKey = ["key1", "key2"];
+const cookeEncryptionKey = ['key1', 'key2'];
 
 app.use(
   cookieSession({
@@ -30,7 +30,7 @@ app.use(function (req, res, next) {
 
 app.use(passport.initialize());
 app.use(passport.session());
-require("./src/config/passport");
+require('./src/config/passport');
 
 app.use(express.json());
 
@@ -38,33 +38,33 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //view engine setup
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 app.use(cookieParser());
 
-app.use("/static", express.static(path.join(__dirname, "public")));
+app.use('/static', express.static(path.join(__dirname, 'public')));
 
-mongoose.set("strictQuery", false);
+mongoose.set('strictQuery', false);
 mongoose
   .connect(
-    "mongodb+srv://wnsghrnt2586:MMqxz0x1eRkYwwls@express-cluster.zasrnei.mongodb.net/?retryWrites=true&w=majority"
+    'mongodb+srv://wnsghrnt2586:MMqxz0x1eRkYwwls@express-cluster.zasrnei.mongodb.net/?retryWrites=true&w=majority'
   )
-  .then(() => console.log("MongoDB connect Success"))
+  .then(() => console.log('MongoDB connect Success'))
   .catch((err) => console.error(err));
 
-app.get("/", (req, res) => {
+app.get('/', (req, res) => {
   console.log(`Auth Project`);
   //res.status(201).send(`통신 성공`);
-  res.render("index");
+  res.render('index');
 });
 
-app.get("/login", (req, res, next) => {
-  res.render("login");
+app.get('/login', (req, res, next) => {
+  res.render('login');
 });
 
-app.post("/login", (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
+app.post('/login', (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
     if (err) {
       return next(err);
     }
@@ -77,16 +77,16 @@ app.post("/login", (req, res, next) => {
       if (err) {
         return next(err);
       }
-      res.redirect("/");
+      res.redirect('/');
     });
   })(req, res, next);
 });
 
-app.get("/signup", (req, res, next) => {
-  res.render("signup");
+app.get('/signup', (req, res, next) => {
+  res.render('signup');
 });
 
-app.post("/signup", async (req, res, next) => {
+app.post('/signup', async (req, res, next) => {
   const user = new User(req.body);
 
   try {

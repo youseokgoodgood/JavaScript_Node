@@ -8,6 +8,10 @@ const cookieSession = require('cookie-session');
 const app = express();
 const PORT = 4000;
 const cookeEncryptionKey = ['key1', 'key2'];
+const {
+  checkAuthenticated,
+  checkNotAuthenticated,
+} = require('./src/middlewares/auth');
 
 app.use(
   cookieSession({
@@ -69,13 +73,15 @@ mongoose
   .then(() => console.log('MongoDB connect Success'))
   .catch((err) => console.error(err));
 
-app.get('/', (req, res) => {
-  console.log(`Auth Project`);
+app.get('/', checkAuthenticated, (req, res) => {
+  if (req.user) {
+    res.render('index');
+  }
+  return res.send('로그인 후 이용해주세요.');
   //res.status(201).send(`통신 성공`);
-  res.render('index');
 });
 
-app.get('/login', (req, res, next) => {
+app.get('/login', checkNotAuthenticated, (req, res, next) => {
   res.render('login');
 });
 
@@ -98,8 +104,11 @@ app.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
-app.get('/signup', (req, res, next) => {
-  res.render('signup');
+app.get('/signup', checkNotAuthenticated, (req, res, next) => {
+  if (req.user) {
+    res.render('signup');
+  }
+  return res.send('로그인 후 이용해주세요.');
 });
 
 app.post('/signup', async (req, res, next) => {

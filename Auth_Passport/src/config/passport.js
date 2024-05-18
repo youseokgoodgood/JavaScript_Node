@@ -9,12 +9,13 @@ passport.serializeUser((user, done) => {
 
 //client => session => request
 passport.deserializeUser((id, done) => {
-  User.findById(id).than((user) => {
+  User.findById(id).then((user) => {
     done(null, user);
   });
 });
 
 passport.use(
+  'local',
   new LocalStrategy(
     { usernameField: 'email', passwordField: 'password' },
     (email, password, done) => {

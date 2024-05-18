@@ -11,9 +11,25 @@ const cookeEncryptionKey = ['key1', 'key2'];
 
 app.use(
   cookieSession({
+    name: 'cookie-session-name',
     keys: cookeEncryptionKey,
   })
 );
+
+// register regenerate & save after the cookieSession middleware initialization
+app.use(function (request, response, next) {
+  if (request.session && !request.session.regenerate) {
+    request.session.regenerate = (cb) => {
+      cb();
+    };
+  }
+  if (request.session && !request.session.save) {
+    request.session.save = (cb) => {
+      cb();
+    };
+  }
+  next();
+});
 
 app.use(function (req, res, next) {
   if (req.session && !req.session.regenerate) {

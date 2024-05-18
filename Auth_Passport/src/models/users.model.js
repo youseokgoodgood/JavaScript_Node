@@ -1,4 +1,3 @@
-const passport = require('passport');
 const mongoose = require('mongoose');
 const userSchema = mongoose.Schema({
   email: {
@@ -19,11 +18,9 @@ const userSchema = mongoose.Schema({
   },
 });
 
-userSchema.methods.comparePassword = (plainPassword, cb) => {
+userSchema.methods.comparePassword = function (plainPassword, cb) {
   //bcrypt compare 비교 필요
   //plain Password => client(사용자가 서버로 보낸 비밀번호), this.password => 데이터베이스에 있는 비밀번호
-  console.log(plainPassword);
-  console.log(this.password);
   if (plainPassword === this.password) {
     cb(null, true);
   } else {

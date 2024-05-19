@@ -75,14 +75,16 @@ mongoose
 
 app.get('/', checkAuthenticated, (req, res) => {
   if (req.user) {
-    res.render('index');
+    return res.render('index');
   }
   return res.status(201).send(`통신 성공`);
   //res.status(201).send(`통신 성공`);
 });
 
 app.get('/login', checkNotAuthenticated, (req, res, next) => {
-  res.render('login');
+  if (!req.user) {
+    return res.render('login');
+  }
   return res.status(201).send(`통신 성공`);
 });
 
@@ -96,11 +98,11 @@ app.post('/login', (req, res, next) => {
       return res.json({ msg: info });
     }
 
-    req.logIn(user, (err) => {
+    req.logIn(user, function (err) {
       if (err) {
         return next(err);
       }
-      res.redirect('/');
+      return res.redirect('/');
     });
   })(req, res, next);
 });
@@ -110,14 +112,12 @@ app.post('/logout', (req, res, next) => {
     if (err) {
       return next(err);
     }
-    res.redirect('/login');
+    return res.redirect('/login');
   });
 });
 
 app.get('/signup', checkNotAuthenticated, (req, res, next) => {
-  if (req.user) {
-    res.render('signup');
-  }
+  return res.render('signup');
 });
 
 app.post('/signup', async (req, res, next) => {
@@ -132,6 +132,17 @@ app.post('/signup', async (req, res, next) => {
     console.log(error);
   }
 });
+
+app.get('/auth/google', passport.authenticate('google'));
+
+//user에 대한 세부정보 전달
+app.get(
+  '/auth/google/callback',
+  passport.authenticate('google', {
+    successReturnToOrRedirect: '/',
+    failureRedirect: '/login',
+  })
+);
 
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);

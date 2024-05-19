@@ -77,12 +77,13 @@ app.get('/', checkAuthenticated, (req, res) => {
   if (req.user) {
     res.render('index');
   }
-  return res.send('로그인 후 이용해주세요.');
+  return res.status(201).send(`통신 성공`);
   //res.status(201).send(`통신 성공`);
 });
 
 app.get('/login', checkNotAuthenticated, (req, res, next) => {
   res.render('login');
+  return res.status(201).send(`통신 성공`);
 });
 
 app.post('/login', (req, res, next) => {
@@ -104,11 +105,19 @@ app.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
+app.post('/logout', (req, res, next) => {
+  req.logOut(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect('/login');
+  });
+});
+
 app.get('/signup', checkNotAuthenticated, (req, res, next) => {
   if (req.user) {
     res.render('signup');
   }
-  return res.send('로그인 후 이용해주세요.');
 });
 
 app.post('/signup', async (req, res, next) => {

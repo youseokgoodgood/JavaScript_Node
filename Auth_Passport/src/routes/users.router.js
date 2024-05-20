@@ -2,6 +2,7 @@ const express = require('express');
 const usersRouter = express.Router();
 const passport = require('passport');
 const User = require('../models/users.model');
+const sendMail = require('../mail/mail');
 
 usersRouter.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
@@ -36,6 +37,10 @@ usersRouter.post('/signup', async (req, res, next) => {
 
   try {
     await user.save();
+
+    // 회원가입 시 이메일 보내기
+    sendMail();
+
     return res.redirect('/login');
   } catch (error) {
     console.log(error);

@@ -4,15 +4,12 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
-const User = require('./src/models/users.model');
 const passport = require('passport');
 const cookieSession = require('cookie-session');
 const app = express();
-const {
-  checkAuthenticated,
-  checkNotAuthenticated,
-} = require('./src/middlewares/auth');
 const config = require('config');
+const mainRouter = require('./src/routes/main.router');
+const usersRouter = require('./src/routes/users.router');
 const serverConfig = config.get('server');
 
 app.use(
@@ -73,76 +70,8 @@ mongoose
   .then(() => console.log('MongoDB connect Success'))
   .catch((err) => console.error(err));
 
-app.get('/', checkAuthenticated, (req, res) => {
-  if (req.user) {
-    return res.render('index');
-  }
-  return res.status(201).send(`통신 성공`);
-  //res.status(201).send(`통신 성공`);
-});
-
-app.get('/login', checkNotAuthenticated, (req, res, next) => {
-  if (!req.user) {
-    return res.render('login');
-  }
-  return res.status(201).send(`통신 성공`);
-});
-
-app.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
-
-    if (!user) {
-      return res.json({ msg: info });
-    }
-
-    req.logIn(user, function (err) {
-      if (err) {
-        return next(err);
-      }
-      return res.redirect('/');
-    });
-  })(req, res, next);
-});
-
-app.post('/logout', (req, res, next) => {
-  req.logOut(function (err) {
-    if (err) {
-      return next(err);
-    }
-    return res.redirect('/login');
-  });
-});
-
-app.get('/signup', checkNotAuthenticated, (req, res, next) => {
-  return res.render('signup');
-});
-
-app.post('/signup', async (req, res, next) => {
-  const user = new User(req.body);
-
-  try {
-    await user.save();
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-app.get('/auth/google', passport.authenticate('google'));
-
-//user에 대한 세부정보 전달
-app.get(
-  '/auth/google/callback',
-  passport.authenticate('google', {
-    successReturnToOrRedirect: '/',
-    failureRedirect: '/login',
-  })
-);
+app.use('/', mainRouter);
+app.use('/auth', usersRouter);
 
 app.listen(serverConfig.port, () => {
   console.log(`listening on port ${serverConfig.port}`);

@@ -2,6 +2,7 @@ const passport = require('passport');
 const User = require('../models/users.model');
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+require('dotenv').config();
 
 //req.logIn(user)
 passport.serializeUser((user, done) => {
@@ -46,13 +47,10 @@ const localStrategyConfig = new LocalStrategy(
 passport.use('local', localStrategyConfig);
 
 // google auth
-const googleClientID = '';
-const googleClientSecret = '';
-
 const googleStrategyConfig = new GoogleStrategy(
   {
-    clientID: googleClientID,
-    clientSecret: googleClientSecret,
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: 'http://localhost:4000/auth/google/callback',
     scope: ['email', 'profile'],
   },

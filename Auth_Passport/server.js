@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const cookieParser = require('cookie-parser');
 const express = require('express');
 const path = require('path');
@@ -6,17 +8,17 @@ const User = require('./src/models/users.model');
 const passport = require('passport');
 const cookieSession = require('cookie-session');
 const app = express();
-const PORT = 4000;
-const cookeEncryptionKey = ['key1', 'key2'];
 const {
   checkAuthenticated,
   checkNotAuthenticated,
 } = require('./src/middlewares/auth');
+const config = require('config');
+const serverConfig = config.get('server');
 
 app.use(
   cookieSession({
     name: 'cookie-session-name',
-    keys: cookeEncryptionKey,
+    keys: [process.env.COOKIE_ENCRYPTION_KEY],
   })
 );
 
@@ -67,9 +69,7 @@ app.use('/static', express.static(path.join(__dirname, 'public')));
 
 mongoose.set('strictQuery', false);
 mongoose
-  .connect(
-    'mongodb+srv://wnsghrnt2586:MMqxz0x1eRkYwwls@express-cluster.zasrnei.mongodb.net/?retryWrites=true&w=majority'
-  )
+  .connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connect Success'))
   .catch((err) => console.error(err));
 
@@ -144,6 +144,6 @@ app.get(
   })
 );
 
-app.listen(PORT, () => {
-  console.log(`listening on port ${PORT}`);
+app.listen(serverConfig.port, () => {
+  console.log(`listening on port ${serverConfig.port}`);
 });

@@ -18,6 +18,12 @@ const userSchema = mongoose.Schema({
     unique: true,
     sparse: true, // 세션저장
   },
+  kakaoId: {
+    //구글 로그인을 통한 로그인
+    type: String,
+    unique: true,
+    sparse: true, // 세션저장
+  },
 });
 
 const saltRounds = 10;

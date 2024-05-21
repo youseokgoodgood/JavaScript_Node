@@ -39,7 +39,7 @@ usersRouter.post('/signup', async (req, res, next) => {
     await user.save();
 
     // 회원가입 시 이메일 보내기
-    sendMail();
+    sendMail('wnsghrnt2@naver.com', '심유석', 'welcome');
 
     return res.redirect('/login');
   } catch (error) {
